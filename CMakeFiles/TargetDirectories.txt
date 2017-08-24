@@ -1,4 +1,4 @@
-/home/francisco/Documentos/softwaresTCC/party_parrot-master/CMakeFiles/edit_cache.dir
-/home/francisco/Documentos/softwaresTCC/party_parrot-master/CMakeFiles/rebuild_cache.dir
-/home/francisco/Documentos/softwaresTCC/party_parrot-master/CMakeFiles/color_cycle_asm.dir
-/home/francisco/Documentos/softwaresTCC/party_parrot-master/CMakeFiles/color_cycle_lib.dir
+/var/www/html/AppTcc-wasm/CMakeFiles/edit_cache.dir
+/var/www/html/AppTcc-wasm/CMakeFiles/rebuild_cache.dir
+/var/www/html/AppTcc-wasm/CMakeFiles/color_cycle_asm.dir
+/var/www/html/AppTcc-wasm/CMakeFiles/color_cycle_lib.dir

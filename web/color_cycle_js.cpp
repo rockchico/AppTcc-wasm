@@ -119,7 +119,7 @@ extern "C"
         KeyPoint::convert(keypoints_1, points1, vector<int>());
 
 
-        //printf("kwypoints size = %d \n", keypoints_1.size());
+        // printf("kwypoints size = %d \n", keypoints_1.size());
 
 
         drawKeypoints(gray, keypoints_1, gray, Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS );

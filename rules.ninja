@@ -61,7 +61,7 @@ rule CXX_STATIC_LIBRARY_LINKER__color_cycle_lib
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = /usr/bin/cmake -H/home/francisco/Documentos/softwaresTCC/party_parrot-master -B/home/francisco/Documentos/softwaresTCC/party_parrot-master
+  command = /usr/bin/cmake -H/var/www/html/AppTcc-wasm -B/var/www/html/AppTcc-wasm
   description = Re-running CMake...
   generator = 1
 

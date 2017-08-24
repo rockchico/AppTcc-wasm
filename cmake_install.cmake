@@ -1,4 +1,4 @@
-# Install script for directory: /home/francisco/Documentos/softwaresTCC/party_parrot-master
+# Install script for directory: /var/www/html/AppTcc-wasm
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -35,5 +35,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/francisco/Documentos/softwaresTCC/party_parrot-master/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/var/www/html/AppTcc-wasm/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

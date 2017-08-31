@@ -183,6 +183,9 @@ NODE_JS_EXECUTABLE:FILEPATH=/usr/bin/nodejs
 OpenCV_DIR:PATH=/home/francisco/Documentos/softwaresTCC/opencv-3.3.0/build
 
 //Dependencies for target
+app_tcc_lib_LIB_DEPENDS:STATIC=
+
+//Dependencies for target
 color_cycle_lib_LIB_DEPENDS:STATIC=
 
 

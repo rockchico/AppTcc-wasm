@@ -1,4 +1,10 @@
+/*
+    homografia
+    http://www.docs.opencv.org/2.4.13/doc/tutorials/features2d/feature_homography/feature_homography.html
 
+    mono-vo
+    https://github.com/avisingh599/mono-vo
+*/
 
 
 
@@ -83,22 +89,29 @@ extern "C"
 
 
    //////////////////////////////////////////////////////////////////////////
+   
 
-    /*
-    http://www.docs.opencv.org/2.4.13/doc/tutorials/features2d/feature_homography/feature_homography.html
-    
-    */
+    int EMSCRIPTEN_KEEPALIVE teste_return(int width) try { 
 
-    void featureDetection(Mat img_1, vector<Point2f>& points1)	{   //uses FAST as of now, modify parameters as necessary
-        
+       
+
+        return width + 2;
+
+
+
+    } catch (std::exception const& e) {
+        printf("Exception thrown teste_return: %s\n", e.what());
+        return false;
+    } catch (...) {
+        printf("Unknown exception thrown teste_return!\n");
+        return false;
     }
 
 
     bool EMSCRIPTEN_KEEPALIVE teste_features(int width, 
                                             int height,
                                             cv::Vec4b* frame4b_ptr,
-                                            cv::Vec4b* frame4b_ptr_out,
-                                            int indexFrame) try { 
+                                            cv::Vec4b* frame4b_ptr_out) try { 
     
         Mat rgba_in(height, width, CV_8UC4, frame4b_ptr);
         Mat rgba_out(height, width, CV_8UC4, frame4b_ptr_out);
@@ -113,17 +126,18 @@ extern "C"
         std::vector<Point2f> points1;
 
         vector<KeyPoint> keypoints_1;
-        int fast_threshold = 20;
+        int fast_threshold = 30; // quanto maior o threshold, menor o número de pontos
         bool nonmaxSuppression = true;
         FAST(gray, keypoints_1, fast_threshold, nonmaxSuppression);
         KeyPoint::convert(keypoints_1, points1, vector<int>());
 
 
-        // printf("kwypoints size = %d \n", keypoints_1.size());
+        printf("kwypoints size = %d \n", keypoints_1.size());
 
 
         drawKeypoints(gray, keypoints_1, gray, Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS );
-
+                                                                                //DRAW_RICH_KEYPOINTS
+                                                                                //DRAW_OVER_OUTIMG  
         // 0123
         // RGBA
 

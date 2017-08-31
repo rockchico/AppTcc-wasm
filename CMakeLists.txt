@@ -5,34 +5,34 @@ set(OpenCV_STATIC ON)
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS} .)
 
-add_library(color_cycle_lib color_cycle.cpp color_cycle.h)
+add_library(app_tcc_lib VO.cpp VO.h)
 
 if (EMSCRIPTEN)
-	add_executable (color_cycle_asm web/color_cycle_js.cpp)
-	target_link_libraries(color_cycle_asm ${OpenCV_LIBS} color_cycle_lib)
+	add_executable (app_tcc_wasm web/app_tcc_js.cpp)
+    target_link_libraries(app_tcc_wasm ${OpenCV_LIBS} app_tcc_lib)
 
-   # copy files to docs folder
-	configure_file(${CMAKE_SOURCE_DIR}/web/index.html        ${CMAKE_SOURCE_DIR}/docs/demo.html      COPYONLY)
-	configure_file(${CMAKE_SOURCE_DIR}/web/color_cycle.js    ${CMAKE_SOURCE_DIR}/docs/color_cycle.js COPYONLY)
-
-
-   add_custom_command(TARGET color_cycle_asm POST_BUILD              # Adds a post-build event to color_cycle_asm
+    add_custom_command(TARGET app_tcc_wasm POST_BUILD              # Adds a post-build event to app_tcc_wasm
                       COMMAND ${CMAKE_COMMAND} -E copy_if_different  # which executes "cmake - E copy_if_different..."
-                      ${CMAKE_CURRENT_BINARY_DIR}/color_cycle_asm.js # <--this is in-file
-                      /var/www/html/AppTcc/www/testes/teste-wasm/color_cycle_asm.js)   # <--this is out-file path
+                      ${CMAKE_CURRENT_BINARY_DIR}/app_tcc_wasm.js # <--this is in-file
+                      /var/www/html/AppTcc/www/testes/teste-wasm/app_tcc_wasm.js)   # <--this is out-file path
 
-   add_custom_command(TARGET color_cycle_asm POST_BUILD              # Adds a post-build event to color_cycle_asm
+    add_custom_command(TARGET app_tcc_wasm POST_BUILD              # Adds a post-build event to app_tcc_wasm
                       COMMAND ${CMAKE_COMMAND} -E copy_if_different  # which executes "cmake - E copy_if_different..."
-                      ${CMAKE_CURRENT_BINARY_DIR}/color_cycle_asm.wasm # <--this is in-file
-                      /var/www/html/AppTcc/www/testes/teste-wasm/color_cycle_asm.wasm)   # <--this is out-file path
+                      ${CMAKE_CURRENT_BINARY_DIR}/app_tcc_wasm.wasm # <--this is in-file
+                      /var/www/html/AppTcc/www/testes/teste-wasm/app_tcc_wasm.wasm)   # <--this is out-file path
 
 else()
-	add_executable (color_cycle main.cpp)
-	target_link_libraries(color_cycle ${OpenCV_LIBS} color_cycle_lib)
+	add_executable (app_tcc main.cpp)
+	target_link_libraries(app_tcc ${OpenCV_LIBS} app_tcc_lib)
 endif()
 
 if(UNIX)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z --llvm-lto 1 --bind -s WASM=1 -s DISABLE_EXCEPTION_CATCHING=0 -s ASSERTIONS=2 --memory-init-file 0 -O3") # -Oz --profiling / -s WASM=1
+    
+    # -s ALLOW_MEMORY_GROWTH=1
+    # Cannot enlarge memory arrays. Either (1) compile with  -s TOTAL_MEMORY=X  with X higher than the current value 16777216, (2) compile with  -s ALLOW_MEMORY_GROWTH=1  which allows increasing the size at runtime, or (3) if you want malloc to return NULL (0) instead of this abort, compile with  -s ABORTING_MALLOC=0 
+    
+    
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z --llvm-lto 1 --bind -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0 -s ASSERTIONS=2 --memory-init-file 0 -O3") # -Oz --profiling / -s WASM=1
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s DISABLE_EXCEPTION_CATCHING=0 -s NO_FILESYSTEM=1 -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -s NO_EXIT_RUNTIME=1") # reduce file size
 	
 	if(DEFINED CMAKE_BUILD_TYPE)

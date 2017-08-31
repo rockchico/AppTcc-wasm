@@ -1,4 +1,4 @@
-/var/www/html/AppTcc-wasm/CMakeFiles/edit_cache.dir
 /var/www/html/AppTcc-wasm/CMakeFiles/rebuild_cache.dir
-/var/www/html/AppTcc-wasm/CMakeFiles/color_cycle_asm.dir
-/var/www/html/AppTcc-wasm/CMakeFiles/color_cycle_lib.dir
+/var/www/html/AppTcc-wasm/CMakeFiles/edit_cache.dir
+/var/www/html/AppTcc-wasm/CMakeFiles/app_tcc_wasm.dir
+/var/www/html/AppTcc-wasm/CMakeFiles/app_tcc_lib.dir

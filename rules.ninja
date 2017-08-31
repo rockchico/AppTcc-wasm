@@ -22,7 +22,7 @@ rule CUSTOM_COMMAND
 #############################################
 # Rule for compiling CXX files.
 
-rule CXX_COMPILER__color_cycle_asm
+rule CXX_COMPILER__app_tcc_wasm
   depfile = $DEP_FILE
   deps = gcc
   command = /opt/emsdk-portable/emscripten/1.37.14/em++   $DEFINES $INCLUDES $FLAGS -MMD -MT $out -MF $DEP_FILE -o $out -c $in
@@ -32,7 +32,7 @@ rule CXX_COMPILER__color_cycle_asm
 #############################################
 # Rule for linking CXX executable.
 
-rule CXX_EXECUTABLE_LINKER__color_cycle_asm
+rule CXX_EXECUTABLE_LINKER__app_tcc_wasm
   command = $PRE_LINK && /opt/emsdk-portable/emscripten/1.37.14/em++   $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
   description = Linking CXX executable $TARGET_FILE
   restat = $RESTAT
@@ -41,7 +41,7 @@ rule CXX_EXECUTABLE_LINKER__color_cycle_asm
 #############################################
 # Rule for compiling CXX files.
 
-rule CXX_COMPILER__color_cycle_lib
+rule CXX_COMPILER__app_tcc_lib
   depfile = $DEP_FILE
   deps = gcc
   command = /opt/emsdk-portable/emscripten/1.37.14/em++   $DEFINES $INCLUDES $FLAGS -MMD -MT $out -MF $DEP_FILE -o $out -c $in
@@ -51,7 +51,7 @@ rule CXX_COMPILER__color_cycle_lib
 #############################################
 # Rule for linking CXX static library.
 
-rule CXX_STATIC_LIBRARY_LINKER__color_cycle_lib
+rule CXX_STATIC_LIBRARY_LINKER__app_tcc_lib
   command = $PRE_LINK && /opt/emsdk-portable/emscripten/1.37.14/emar rc $TARGET_FILE $LINK_FLAGS $in && $POST_BUILD
   description = Linking CXX static library $TARGET_FILE
   restat = $RESTAT

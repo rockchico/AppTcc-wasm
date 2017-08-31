@@ -45,9 +45,22 @@ cv::Mat frame_base(480, 640, CV_8UC3, Scalar(0,0,0));
 
 extern "C" 
 {
+
+    void filledCircle( Mat& img, Point center, int radius, cv::Scalar cor ) {
+        int thickness = -1;
+        int lineType = 8;
+
+        circle( img,
+                center,
+                radius,
+                cor,
+                thickness,
+                lineType );
+    }
+
     void featureDetection(Mat& img, vector<Point2f>& points)	{   //uses FAST as of now, modify parameters as necessary
         vector<KeyPoint> keypoints;
-        int fast_threshold = 20;
+        int fast_threshold = 30;
         bool nonmaxSuppression = true;
         FAST(img, keypoints, fast_threshold, nonmaxSuppression);
         KeyPoint::convert(keypoints, points, vector<int>());
@@ -199,6 +212,19 @@ extern "C"
                         //  cv::line( secondImage, img2_corners[1] + cv::Point2f( firstImage.cols, 0), img2_corners[2] + cv::Point2f( firstImage.cols, 0), cv::Scalar( 0, 255, 0), 4 );
                         //  cv::line( secondImage, img2_corners[2] + cv::Point2f( firstImage.cols, 0), img2_corners[3] + cv::Point2f( firstImage.cols, 0), cv::Scalar( 0, 255, 0), 4 );
                         //  cv::line( secondImage, img2_corners[3] + cv::Point2f( firstImage.cols, 0), img2_corners[0] + cv::Point2f( firstImage.cols, 0), cv::Scalar( 0, 255, 0), 4 );
+                        
+                        // superior esquerdo
+                        //filledCircle(secondImage, img2_corners[0], 10, cv::Scalar( 255, 0, 0));
+                        
+                        // superior direito
+                        //filledCircle(secondImage, img2_corners[1], 10, cv::Scalar( 255, 0, 0));
+                        
+                        // inferior direito
+                        //filledCircle(secondImage, img2_corners[2], 10, cv::Scalar( 255, 0, 0));
+
+                        // inferior esquerdo
+                        //filledCircle(secondImage, img2_corners[3], 10, cv::Scalar( 255, 0, 0));
+
                         cv::line( secondImage, img2_corners[0] , img2_corners[1] , cv::Scalar( 0, 255, 0), 4 );
                         cv::line( secondImage, img2_corners[1] , img2_corners[2] , cv::Scalar( 0, 255, 0), 4 );
                         cv::line( secondImage, img2_corners[2] , img2_corners[3] , cv::Scalar( 0, 255, 0), 4 );

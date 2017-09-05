@@ -60,7 +60,12 @@ extern "C"
 
     void featureDetection(Mat& img, vector<Point2f>& points)	{   //uses FAST as of now, modify parameters as necessary
         vector<KeyPoint> keypoints;
-        int fast_threshold = 30;
+
+
+        // original = 20
+        // quanto o maior o fast_threshold menos pontos capturados
+
+        int fast_threshold = 70;
         bool nonmaxSuppression = true;
         FAST(img, keypoints, fast_threshold, nonmaxSuppression);
         KeyPoint::convert(keypoints, points, vector<int>());
@@ -94,7 +99,7 @@ extern "C"
     
         }
 
-        std::cout<<"Size of Points 1 : "<<points1.size()<<" Points 2 : "<<points2.size()<<std::endl;
+        //std::cout<<"Size of Points 1 : "<<points1.size()<<" Points 2 : "<<points2.size()<<std::endl;
 
 
         //cv::drawMatches(img_1, points1, img_2, points2, status, img_2);
@@ -201,8 +206,8 @@ extern "C"
                      
                     //std::cout<<"oi passou aqui"<<std::endl;
                     
-                    cv::drawMatches( firstImage, FASTKeypoints1, secondImage, FASTKeypoints2,good_matches, img_matches,
-                                     cv::Scalar::all(-1), cv::Scalar::all(-1),std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
+                    //cv::drawMatches( firstImage, FASTKeypoints1, secondImage, FASTKeypoints2,good_matches, img_matches,
+                    //                 cv::Scalar::all(-1), cv::Scalar::all(-1),std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
     
                      if(!H.empty()){
                         cv::perspectiveTransform( img1_corners, img2_corners, H);
@@ -231,14 +236,14 @@ extern "C"
                         cv::line( secondImage, img2_corners[3] , img2_corners[0] , cv::Scalar( 0, 255, 0), 4 );
                      }
                      else{
-                         std::cout<<"No Homography"<<std::endl;
+                         //std::cout<<"No Homography"<<std::endl;
                      }
     
                     
                  }
     
                  if(!H.empty()){
-                     std::cout<<"Homography Computed"<<std::endl;
+                     //std::cout<<"Homography Computed"<<std::endl;
                  }
                  return H;
     
@@ -265,6 +270,9 @@ extern "C"
 
         Mat img_out(height, width, CV_8UC4, frame4b_ptr_out);
 
+
+        Mat white(height, width, CV_8UC3, Scalar(255,255,255));
+
         cv::cvtColor(frame, gray, CV_RGBA2GRAY);
 
 
@@ -283,8 +291,24 @@ extern "C"
         vector<uchar> status;
         featureTracking(frame_base, gray, points_0, points_1, status); //track those features to img_2
 
+        cv::Mat homography;
         bool drawMatches = true;
-        computeHomographyFromKeypoints(frame_base, gray, points_0, points_1, drawMatches);
+        homography = computeHomographyFromKeypoints(frame_base, gray, points_0, points_1, drawMatches);
+
+        //http://docs.opencv.org/3.3.0/d6/d6d/tutorial_mat_the_basic_image_container.html
+        //cout << "M = " << endl << " " << homography << endl << endl;
+
+        
+
+
+
+
+        // double focal = 718.8560;
+        // cv::Point2d pp(607.1928, 185.2157);
+        // cv::Mat E, R, t, mask;
+
+        // E = cv::findEssentialMat(points_1, points_0, focal, pp, cv::RANSAC, 0.999, 1.0, mask);
+        // cv::recoverPose(E, points_1, points_0, R, t, focal, pp, mask);
 
 
         // 0123

@@ -99,7 +99,7 @@ extern "C"
     
         }
 
-        //std::cout<<"Size of Points 1 : "<<points1.size()<<" Points 2 : "<<points2.size()<<std::endl;
+        std::cout<<"Size of Points 1 : "<<points1.size()<<" Points 2 : "<<points2.size()<<std::endl;
 
 
         //cv::drawMatches(img_1, points1, img_2, points2, status, img_2);

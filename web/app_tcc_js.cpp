@@ -44,7 +44,7 @@ using namespace std;
 cv::Mat frame_base(240, 320, CV_8UC3, Scalar(0,0,0));
 
 cv::Mat mat_white(240, 320, CV_8UC3, Scalar(255,255,255));
-cv::Mat frame_white(240, 320, CV_8UC3, Scalar(255,255,255));
+//cv::Mat frame_white(240, 320, CV_8UC3, Scalar(255,255,255));
 
 extern "C" 
 {
@@ -67,13 +67,13 @@ extern "C"
 
         // original = 20
         // quanto o maior o fast_threshold menos pontos capturados
-        int fast_threshold = 50;
+        int fast_threshold = 30;
         bool nonmaxSuppression = true;
         FAST(img, keypoints, fast_threshold, nonmaxSuppression);
 
         // filtra os melhores 100 pontos
         // http://answers.opencv.org/question/12316/set-a-threshold-on-fast-feature-detection/
-        cv::KeyPointsFilter::retainBest(keypoints, 100);
+        cv::KeyPointsFilter::retainBest(keypoints, 200);
 
 
         KeyPoint::convert(keypoints, points, vector<int>());
@@ -119,7 +119,7 @@ extern "C"
     
     }
 
-    cv::Mat computeHomographyFromKeypoints(cv::Mat firstImage, cv::Mat& secondImage, std::vector<cv::Point2f> FASTpoints1, std::vector<cv::Point2f> FASTpoints2, bool drawMatches){
+    cv::Mat computeHomographyFromKeypoints(cv::Mat firstImage, cv::Mat& secondImage, std::vector<cv::Point2f> FASTpoints1, std::vector<cv::Point2f> FASTpoints2, bool drawMatches, Mat& frame_white){
         // Checking with Robust Matcher
                 cv::Mat orbDescriptors1,orbDescriptors2;
                 std::vector<cv::KeyPoint> FASTKeypoints1,FASTKeypoints2;
@@ -285,10 +285,11 @@ extern "C"
 
         Mat img_out(height, width, CV_8UC4, frame4b_ptr_out);
 
-        //frame_white.create(240, 320, CV_8UC3);
 
 
-        mat_white.copyTo(frame_white);
+        //mat_white.copyTo(frame_white);
+
+        cv::Mat frame_white(height, width, CV_8UC3, Scalar(255,255,255));
 
 
 
@@ -312,7 +313,7 @@ extern "C"
 
         cv::Mat homography;
         bool drawMatches = true;
-        homography = computeHomographyFromKeypoints(frame_base, gray, points_0, points_1, drawMatches);
+        homography = computeHomographyFromKeypoints(frame_base, gray, points_0, points_1, drawMatches, frame_white);
 
         //http://docs.opencv.org/3.3.0/d6/d6d/tutorial_mat_the_basic_image_container.html
         //cout << "M = " << endl << " " << homography << endl << endl;
@@ -334,6 +335,8 @@ extern "C"
         // RGBA
 
         const Mat in_mats[] = {frame_white, img_out };
+        
+        //const Mat in_mats[] = {gray, img_out };
         constexpr int from_to[] = { 0,0, 1,1, 2,2 };
         mixChannels(in_mats, std::size(in_mats), &img_out, 1, from_to, std::size(from_to)/2);
 

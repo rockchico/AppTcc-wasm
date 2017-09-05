@@ -41,7 +41,10 @@ using namespace std;
 
 // global data
 
-cv::Mat frame_base(480, 640, CV_8UC3, Scalar(0,0,0));
+cv::Mat frame_base(240, 320, CV_8UC3, Scalar(0,0,0));
+
+cv::Mat mat_white(240, 320, CV_8UC3, Scalar(255,255,255));
+cv::Mat frame_white(240, 320, CV_8UC3, Scalar(255,255,255));
 
 extern "C" 
 {
@@ -64,10 +67,15 @@ extern "C"
 
         // original = 20
         // quanto o maior o fast_threshold menos pontos capturados
-
-        int fast_threshold = 70;
+        int fast_threshold = 50;
         bool nonmaxSuppression = true;
         FAST(img, keypoints, fast_threshold, nonmaxSuppression);
+
+        // filtra os melhores 100 pontos
+        // http://answers.opencv.org/question/12316/set-a-threshold-on-fast-feature-detection/
+        cv::KeyPointsFilter::retainBest(keypoints, 100);
+
+
         KeyPoint::convert(keypoints, points, vector<int>());
 
         //drawKeypoints(img, keypoints, img, Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS );
@@ -80,7 +88,7 @@ extern "C"
     
         vector<float> err;					
         Size winSize=Size(21,21);																								
-        TermCriteria termcrit=TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, 30, 0.01);
+        TermCriteria termcrit = TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, 30, 0.01);
     
         calcOpticalFlowPyrLK(img_1, img_2, points1, points2, status, err, winSize, 3, termcrit, 0, 0.001);
     
@@ -230,10 +238,17 @@ extern "C"
                         // inferior esquerdo
                         //filledCircle(secondImage, img2_corners[3], 10, cv::Scalar( 255, 0, 0));
 
-                        cv::line( secondImage, img2_corners[0] , img2_corners[1] , cv::Scalar( 0, 255, 0), 4 );
-                        cv::line( secondImage, img2_corners[1] , img2_corners[2] , cv::Scalar( 0, 255, 0), 4 );
-                        cv::line( secondImage, img2_corners[2] , img2_corners[3] , cv::Scalar( 0, 255, 0), 4 );
-                        cv::line( secondImage, img2_corners[3] , img2_corners[0] , cv::Scalar( 0, 255, 0), 4 );
+                        
+
+                        // cv::line( secondImage, img2_corners[0] , img2_corners[1] , cv::Scalar( 0, 255, 0), 4 );
+                        // cv::line( secondImage, img2_corners[1] , img2_corners[2] , cv::Scalar( 0, 255, 0), 4 );
+                        // cv::line( secondImage, img2_corners[2] , img2_corners[3] , cv::Scalar( 0, 255, 0), 4 );
+                        // cv::line( secondImage, img2_corners[3] , img2_corners[0] , cv::Scalar( 0, 255, 0), 4 );
+
+                        cv::line( frame_white, img2_corners[0] , img2_corners[1] , cv::Scalar( 0, 255, 0), 4 );
+                        cv::line( frame_white, img2_corners[1] , img2_corners[2] , cv::Scalar( 0, 255, 0), 4 );
+                        cv::line( frame_white, img2_corners[2] , img2_corners[3] , cv::Scalar( 0, 255, 0), 4 );
+                        cv::line( frame_white, img2_corners[3] , img2_corners[0] , cv::Scalar( 0, 255, 0), 4 );
                      }
                      else{
                          //std::cout<<"No Homography"<<std::endl;
@@ -270,8 +285,12 @@ extern "C"
 
         Mat img_out(height, width, CV_8UC4, frame4b_ptr_out);
 
+        //frame_white.create(240, 320, CV_8UC3);
 
-        Mat white(height, width, CV_8UC3, Scalar(255,255,255));
+
+        mat_white.copyTo(frame_white);
+
+
 
         cv::cvtColor(frame, gray, CV_RGBA2GRAY);
 
@@ -314,7 +333,7 @@ extern "C"
         // 0123
         // RGBA
 
-        const Mat in_mats[] = {gray, img_out };
+        const Mat in_mats[] = {frame_white, img_out };
         constexpr int from_to[] = { 0,0, 1,1, 2,2 };
         mixChannels(in_mats, std::size(in_mats), &img_out, 1, from_to, std::size(from_to)/2);
 

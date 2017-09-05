@@ -218,32 +218,27 @@ extern "C"
         //                 cv::Scalar::all(-1), cv::Scalar::all(-1),std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
 
             if(!H.empty()){
-            cv::perspectiveTransform( img1_corners, img2_corners, H);
-
-                //-- Draw lines between the corners (the mapped object in the scene - image_2 )
-            //  cv::line( secondImage, img2_corners[0] + cv::Point2f( firstImage.cols, 0), img2_corners[1] + cv::Point2f( firstImage.cols, 0), cv::Scalar( 0, 255, 0), 4 );
-            //  cv::line( secondImage, img2_corners[1] + cv::Point2f( firstImage.cols, 0), img2_corners[2] + cv::Point2f( firstImage.cols, 0), cv::Scalar( 0, 255, 0), 4 );
-            //  cv::line( secondImage, img2_corners[2] + cv::Point2f( firstImage.cols, 0), img2_corners[3] + cv::Point2f( firstImage.cols, 0), cv::Scalar( 0, 255, 0), 4 );
-            //  cv::line( secondImage, img2_corners[3] + cv::Point2f( firstImage.cols, 0), img2_corners[0] + cv::Point2f( firstImage.cols, 0), cv::Scalar( 0, 255, 0), 4 );
-            
-            // superior esquerdo
-            //filledCircle(secondImage, img2_corners[0], 10, cv::Scalar( 255, 0, 0));
-            
-            // superior direito
-            //filledCircle(secondImage, img2_corners[1], 10, cv::Scalar( 255, 0, 0));
-            
-            // inferior direito
-            //filledCircle(secondImage, img2_corners[2], 10, cv::Scalar( 255, 0, 0));
-
-            // inferior esquerdo
-            //filledCircle(secondImage, img2_corners[3], 10, cv::Scalar( 255, 0, 0));
+                cv::perspectiveTransform( img1_corners, img2_corners, H);
 
             
+                // superior esquerdo
+                //filledCircle(secondImage, img2_corners[0], 10, cv::Scalar( 255, 0, 0));
+                
+                // superior direito
+                //filledCircle(secondImage, img2_corners[1], 10, cv::Scalar( 255, 0, 0));
+                
+                // inferior direito
+                //filledCircle(secondImage, img2_corners[2], 10, cv::Scalar( 255, 0, 0));
 
-            cv::line( secondImage, img2_corners[0] , img2_corners[1] , cv::Scalar( 0, 255, 0), 4 );
-            cv::line( secondImage, img2_corners[1] , img2_corners[2] , cv::Scalar( 0, 255, 0), 4 );
-            cv::line( secondImage, img2_corners[2] , img2_corners[3] , cv::Scalar( 0, 255, 0), 4 );
-            cv::line( secondImage, img2_corners[3] , img2_corners[0] , cv::Scalar( 0, 255, 0), 4 );
+                // inferior esquerdo
+                //filledCircle(secondImage, img2_corners[3], 10, cv::Scalar( 255, 0, 0));
+
+                
+
+                cv::line( secondImage, img2_corners[0] , img2_corners[1] , cv::Scalar( 0, 255, 0), 4 );
+                cv::line( secondImage, img2_corners[1] , img2_corners[2] , cv::Scalar( 0, 255, 0), 4 );
+                cv::line( secondImage, img2_corners[2] , img2_corners[3] , cv::Scalar( 0, 255, 0), 4 );
+                cv::line( secondImage, img2_corners[3] , img2_corners[0] , cv::Scalar( 0, 255, 0), 4 );
 
             }
             else{
@@ -261,7 +256,7 @@ extern "C"
     }
 
 
-    cv::Mat computeHomography(cv::Mat firstImage, cv::Mat& secondImage, bool drawMatches){
+    cv::Mat computeHomography(cv::Mat firstImage, cv::Mat& secondImage, bool drawMatches) {
         // Checking with Robust Matcher
         std::vector<cv::KeyPoint> FASTKeypoints1,FASTKeypoints2;
         cv::Mat orbDescriptors1,orbDescriptors2;
@@ -276,6 +271,18 @@ extern "C"
 
         cv::FAST(firstImage,FASTKeypoints1,fast_threshold,nonmaxSuppression);
         cv::FAST(secondImage,FASTKeypoints2,fast_threshold,nonmaxSuppression);
+        
+        // filtra os melhores 100 pontos
+        // http://answers.opencv.org/question/12316/set-a-threshold-on-fast-feature-detection/
+        cv::KeyPointsFilter::retainBest(FASTKeypoints1, 100);
+        cv::KeyPointsFilter::retainBest(FASTKeypoints2, 100);
+
+        vector<Point2f>& points1;
+        vector<Point2f>& points2;
+        KeyPoint::convert(keypoints, points1, vector<int>());  
+        KeyPoint::convert(keypoints, points2, vector<int>());
+        std::cout<<"Num features 1: "<<points1.size()<<std::endl;
+        std::cout<<"Num features 2: "<<points1.size()<<std::endl;
 
         robustMatcher.computeDescriptors(firstImage,FASTKeypoints1,orbDescriptors1);
         robustMatcher.computeDescriptors(secondImage,FASTKeypoints2,orbDescriptors2);
@@ -288,7 +295,6 @@ extern "C"
         if(orbDescriptors1.type()!=CV_32F) {
             orbDescriptors1.convertTo(orbDescriptors1, CV_32F);
             orbDescriptors1.convertTo(orbDescriptors1_8U, CV_8U);
-
         }
 
         if(orbDescriptors2.type()!=CV_32F) {
@@ -318,8 +324,8 @@ extern "C"
         double max_dist = 0; double min_dist = 2000;
 
         //-- Quick calculation of max and min distances between keypoints
-        for( int i = 0; i < orbDescriptors1.rows; i++ )
-        { double dist = matches[i].distance;
+        for( int i = 0; i < orbDescriptors1.rows; i++ ) { 
+            double dist = matches[i].distance;
             if( dist < min_dist ) min_dist = dist;
             if( dist > max_dist ) max_dist = dist;
         }
@@ -328,12 +334,11 @@ extern "C"
 
         std::vector< cv::DMatch > good_matches;
 
-        for( int i = 0; i < orbDescriptors1.rows; i++ )
-            { if( matches[i].distance <= cv::max(5*min_dist, 200.0) )
-            {
+        for( int i = 0; i < orbDescriptors1.rows; i++ ) { 
+            if( matches[i].distance <= cv::max(5*min_dist, 200.0) ) {
                 good_matches.push_back( matches[i]);
             }
-            }
+        }
 
         //-- Draw only "good" matches
         cv::Mat img_matches;
@@ -343,12 +348,11 @@ extern "C"
         std::vector<cv::Point2f> img1Keypoints;
         std::vector<cv::Point2f> img2Keypoints;
 
-        for( int i = 0; i < good_matches.size(); i++ )
-            {
+        for( int i = 0; i < good_matches.size(); i++ ) {
             //-- Get the keypoints from the good matches
             img1Keypoints.push_back( FASTKeypoints1[ good_matches[i].queryIdx ].pt );
             img2Keypoints.push_back( FASTKeypoints2[ good_matches[i].trainIdx ].pt );
-            }
+        }
 
         cv::Mat H = cv::findHomography(img1Keypoints,img2Keypoints,CV_RANSAC);
 
@@ -366,7 +370,7 @@ extern "C"
                 std::vector<cv::Point2f> img2_corners(4);
 
                 if(!H.empty()){
-                cv::perspectiveTransform( img1_corners, img2_corners, H);
+                    cv::perspectiveTransform( img1_corners, img2_corners, H);
 
                     //-- Draw lines between the corners (the mapped object in the scene - image_2 )
                     // cv::line( img_matches, img2_corners[0] + cv::Point2f( firstImage.cols, 0), img2_corners[1] + cv::Point2f( firstImage.cols, 0), cv::Scalar(0, 255, 0), 4 );
@@ -388,7 +392,7 @@ extern "C"
 
 
         if(!H.empty()){
-            std::cout<<"Homography Computed"<<std::endl;
+            //std::cout<<"Homography Computed"<<std::endl;
         }
         return H;
     

@@ -274,15 +274,15 @@ extern "C"
         
         // filtra os melhores 100 pontos
         // http://answers.opencv.org/question/12316/set-a-threshold-on-fast-feature-detection/
-        cv::KeyPointsFilter::retainBest(FASTKeypoints1, 100);
-        cv::KeyPointsFilter::retainBest(FASTKeypoints2, 100);
+        cv::KeyPointsFilter::retainBest(FASTKeypoints1, 150);
+        cv::KeyPointsFilter::retainBest(FASTKeypoints2, 150);
 
-        vector<Point2f>& points1;
-        vector<Point2f>& points2;
-        KeyPoint::convert(keypoints, points1, vector<int>());  
-        KeyPoint::convert(keypoints, points2, vector<int>());
-        std::cout<<"Num features 1: "<<points1.size()<<std::endl;
-        std::cout<<"Num features 2: "<<points1.size()<<std::endl;
+        vector<Point2f> points1;
+        vector<Point2f> points2;
+        KeyPoint::convert(FASTKeypoints1, points1, vector<int>());  
+        KeyPoint::convert(FASTKeypoints2, points2, vector<int>());
+        //std::cout<<"Num features 1: "<<points1.size()<<std::endl;
+        //std::cout<<"Num features 2: "<<points1.size()<<std::endl;
 
         robustMatcher.computeDescriptors(firstImage,FASTKeypoints1,orbDescriptors1);
         robustMatcher.computeDescriptors(secondImage,FASTKeypoints2,orbDescriptors2);
@@ -377,10 +377,10 @@ extern "C"
                     // cv::line( img_matches, img2_corners[1] + cv::Point2f( firstImage.cols, 0), img2_corners[2] + cv::Point2f( firstImage.cols, 0), cv::Scalar( 0, 255, 0), 4 );
                     // cv::line( img_matches, img2_corners[2] + cv::Point2f( firstImage.cols, 0), img2_corners[3] + cv::Point2f( firstImage.cols, 0), cv::Scalar( 0, 255, 0), 4 );
                     // cv::line( img_matches, img2_corners[3] + cv::Point2f( firstImage.cols, 0), img2_corners[0] + cv::Point2f( firstImage.cols, 0), cv::Scalar( 0, 255, 0), 4 );
-                    cv::line( secondImage, img2_corners[0] , img2_corners[1] , cv::Scalar( 0, 255, 0), 4 );
-                    cv::line( secondImage, img2_corners[1] , img2_corners[2] , cv::Scalar( 0, 255, 0), 4 );
-                    cv::line( secondImage, img2_corners[2] , img2_corners[3] , cv::Scalar( 0, 255, 0), 4 );
-                    cv::line( secondImage, img2_corners[3] , img2_corners[0] , cv::Scalar( 0, 255, 0), 4 );
+                    cv::line( secondImage, img2_corners[0] , img2_corners[1] , cv::Scalar( 255, 255, 255), 4 );
+                    cv::line( secondImage, img2_corners[1] , img2_corners[2] , cv::Scalar( 255, 255, 255), 4 );
+                    cv::line( secondImage, img2_corners[2] , img2_corners[3] , cv::Scalar( 255, 255, 255), 4 );
+                    cv::line( secondImage, img2_corners[3] , img2_corners[0] , cv::Scalar( 255, 255, 255), 4 );
                 }
                 else{
                     std::cout<<"No Homography"<<std::endl;

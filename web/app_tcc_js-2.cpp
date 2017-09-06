@@ -84,24 +84,6 @@ extern "C"
 
     }
 
-    void featureDetection2(Mat& img, vector<Point2f>& points)	{   //uses FAST as of now, modify parameters as necessary
-            // SHi Tomasi
-       double qualityLevel = 0.01;
-       double minDistance = 10;
-       int blockSize = 3;
-       bool useHarrisDetector = false;
-       double k = 0.04;
-       cv::goodFeaturesToTrack(img,points,23,qualityLevel,minDistance,cv::Mat(),blockSize,useHarrisDetector,k);
-
-       std::cout<<"Num features: "<<points.size()<<std::endl;
-
-    }
-
-
-
-
-
-
     void featureTracking(Mat& img_1, Mat& img_2, vector<Point2f>& points1, vector<Point2f>& points2, vector<uchar>& status)	{ 
         
         //this function automatically gets rid of points for which tracking fails
@@ -422,13 +404,14 @@ extern "C"
     
 
    //////////////////////////////////////////////////////////////////////////
-   bool EMSCRIPTEN_KEEPALIVE teste_match(  int width, 
+    bool EMSCRIPTEN_KEEPALIVE teste_match(  int width, 
                                             int height,
                                             cv::Vec4b* frame4b_ptr,
                                             cv::Vec4b* frame4b_ptr_out,
-                                            int frameIndex
-                                        ) try { 
+                                            int frameIndex) try { 
 
+        
+        
         
         Mat frame(height, width, CV_8UC4, frame4b_ptr);
 

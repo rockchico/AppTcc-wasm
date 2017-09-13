@@ -274,52 +274,70 @@ extern "C"
 //     }
 
 
-    cv::Mat computeHomography(cv::Mat firstImage, cv::Mat& secondImage, bool drawMatches) {
+    cv::Mat computeHomography(cv::Mat& Image, int frameIndex, bool drawMatches) {
         // Checking with Robust Matcher
         std::vector<cv::KeyPoint> FASTKeypoints1,FASTKeypoints2;
         cv::Mat orbDescriptors1,orbDescriptors2;
         cv::Mat orbDescriptors1_8U,orbDescriptors2_8U;
 
+        vector<Point2f> points1;
+        vector<Point2f> points2;
+
+        cv::Mat firstImage;
+        cv::Mat secondImage;
 
         VO::RobustMatcher robustMatcher;
-
 
         int fast_threshold = 20;
         bool nonmaxSuppression = true;
 
-        cv::FAST(firstImage,FASTKeypoints1,fast_threshold,nonmaxSuppression);
+        if(frameIndex % 10 == 0) {
+            firstImage = Image;
+            cv::FAST(firstImage,FASTKeypoints1,fast_threshold,nonmaxSuppression);
+            cv::KeyPointsFilter::retainBest(FASTKeypoints1, 150);
+
+            KeyPoint::convert(FASTKeypoints1, points1, vector<int>());
+
+            robustMatcher.computeDescriptors(firstImage,FASTKeypoints1,orbDescriptors1);
+
+            if ( orbDescriptors1.empty() )
+            cvError(0,"MatchFinder","1st descriptor empty",__FILE__,__LINE__);
+
+            if(orbDescriptors1.type()!=CV_32F) {
+                orbDescriptors1.convertTo(orbDescriptors1, CV_32F);
+                orbDescriptors1.convertTo(orbDescriptors1_8U, CV_8U);
+            }
+
+        } else {
+            secondImage = Image;
+        }
+
         cv::FAST(secondImage,FASTKeypoints2,fast_threshold,nonmaxSuppression);
 
         //std::cout<<"Passou aqui 1"<<std::endl;
         
         // filtra os melhores 100 pontos
         // http://answers.opencv.org/question/12316/set-a-threshold-on-fast-feature-detection/
-        cv::KeyPointsFilter::retainBest(FASTKeypoints1, 150);
         cv::KeyPointsFilter::retainBest(FASTKeypoints2, 150);
 
         //std::cout<<"Passou aqui 2"<<std::endl;
 
-        vector<Point2f> points1;
-        vector<Point2f> points2;
-        KeyPoint::convert(FASTKeypoints1, points1, vector<int>());  
+        
+          
         KeyPoint::convert(FASTKeypoints2, points2, vector<int>());
         //std::cout<<"Num features 1: "<<points1.size()<<std::endl;
         //std::cout<<"Num features 2: "<<points1.size()<<std::endl;
 
-        robustMatcher.computeDescriptors(firstImage,FASTKeypoints1,orbDescriptors1);
+        
         robustMatcher.computeDescriptors(secondImage,FASTKeypoints2,orbDescriptors2);
 
         //std::cout<<"Passou aqui 3"<<std::endl;
 
-        if ( orbDescriptors1.empty() )
-            cvError(0,"MatchFinder","1st descriptor empty",__FILE__,__LINE__);
+        
         if ( orbDescriptors2.empty() )
             cvError(0,"MatchFinder","2nd descriptor empty",__FILE__,__LINE__);
 
-        if(orbDescriptors1.type()!=CV_32F) {
-            orbDescriptors1.convertTo(orbDescriptors1, CV_32F);
-            orbDescriptors1.convertTo(orbDescriptors1_8U, CV_8U);
-        }
+        
 
         if(orbDescriptors2.type()!=CV_32F) {
             orbDescriptors2.convertTo(orbDescriptors2, CV_32F);
@@ -401,10 +419,10 @@ extern "C"
                     // cv::line( img_matches, img2_corners[1] + cv::Point2f( firstImage.cols, 0), img2_corners[2] + cv::Point2f( firstImage.cols, 0), cv::Scalar( 0, 255, 0), 4 );
                     // cv::line( img_matches, img2_corners[2] + cv::Point2f( firstImage.cols, 0), img2_corners[3] + cv::Point2f( firstImage.cols, 0), cv::Scalar( 0, 255, 0), 4 );
                     // cv::line( img_matches, img2_corners[3] + cv::Point2f( firstImage.cols, 0), img2_corners[0] + cv::Point2f( firstImage.cols, 0), cv::Scalar( 0, 255, 0), 4 );
-                    cv::line( secondImage, img2_corners[0] , img2_corners[1] , cv::Scalar( 255, 255, 255), 4 );
-                    cv::line( secondImage, img2_corners[1] , img2_corners[2] , cv::Scalar( 255, 255, 255), 4 );
-                    cv::line( secondImage, img2_corners[2] , img2_corners[3] , cv::Scalar( 255, 255, 255), 4 );
-                    cv::line( secondImage, img2_corners[3] , img2_corners[0] , cv::Scalar( 255, 255, 255), 4 );
+                    cv::line( Image, img2_corners[0] , img2_corners[1] , cv::Scalar( 255, 255, 255), 4 );
+                    cv::line( Image, img2_corners[1] , img2_corners[2] , cv::Scalar( 255, 255, 255), 4 );
+                    cv::line( Image, img2_corners[2] , img2_corners[3] , cv::Scalar( 255, 255, 255), 4 );
+                    cv::line( Image, img2_corners[3] , img2_corners[0] , cv::Scalar( 255, 255, 255), 4 );
                 }
                 else{
                     std::cout<<"No Homography"<<std::endl;
@@ -455,10 +473,10 @@ extern "C"
 
         //printf("frameINdex = %d \n", frameIndex);
 
-        if(frameIndex % 10 == 0) {
+        //if(frameIndex % 10 == 0) {
             //printf("entrou aqui = %d \n", frameIndex);
-            frame_base = gray;
-        } 
+        //    frame_base = gray;
+        //} 
 
         
         // feature detection, tracking
@@ -472,7 +490,7 @@ extern "C"
         bool drawMatches = true;
         //homography = computeHomographyFromKeypoints(frame_base, gray, points_0, points_1, drawMatches);
 
-        homography = computeHomography(frame_base, gray, drawMatches);
+        homography = computeHomography(gray, frameIndex, drawMatches);
 
         //http://docs.opencv.org/3.3.0/d6/d6d/tutorial_mat_the_basic_image_container.html
         //cout << "M = " << endl << " " << homography << endl << endl;

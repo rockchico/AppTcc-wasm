@@ -46,6 +46,16 @@ cv::Mat frame_base(240, 320, CV_8UC3, Scalar(0,0,0));
 cv::Mat mat_white(240, 320, CV_8UC3, Scalar(255,255,255));
 //cv::Mat frame_white(240, 320, CV_8UC3, Scalar(255,255,255));
 
+cv::Mat firstImage(240, 320, CV_8UC3, Scalar(0,0,0));
+cv::Mat secondImage(240, 320, CV_8UC3, Scalar(0,0,0));
+
+std::vector<cv::KeyPoint> FASTKeypoints1,FASTKeypoints2;
+cv::Mat orbDescriptors1,orbDescriptors2;
+cv::Mat orbDescriptors1_8U,orbDescriptors2_8U;
+
+vector<Point2f> points1;
+vector<Point2f> points2;
+
 extern "C" 
 {
 
@@ -276,15 +286,9 @@ extern "C"
 
     cv::Mat computeHomography(cv::Mat& Image, int frameIndex, bool drawMatches) {
         // Checking with Robust Matcher
-        std::vector<cv::KeyPoint> FASTKeypoints1,FASTKeypoints2;
-        cv::Mat orbDescriptors1,orbDescriptors2;
-        cv::Mat orbDescriptors1_8U,orbDescriptors2_8U;
 
-        vector<Point2f> points1;
-        vector<Point2f> points2;
 
-        cv::Mat firstImage;
-        cv::Mat secondImage;
+
 
         VO::RobustMatcher robustMatcher;
 
@@ -293,6 +297,7 @@ extern "C"
 
         if(frameIndex % 10 == 0) {
             firstImage = Image;
+            
             cv::FAST(firstImage,FASTKeypoints1,fast_threshold,nonmaxSuppression);
             cv::KeyPointsFilter::retainBest(FASTKeypoints1, 150);
 

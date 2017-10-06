@@ -466,8 +466,7 @@ extern "C"
                                             int height,
                                             cv::Vec4b* frame4b_ptr,
                                             cv::Vec4b* frame4b_ptr_out,
-                                            int frameIndex,
-                                            cv::Vec2f* arrayFloat
+                                            int frameIndex
                                         ) try { 
 
         
@@ -476,9 +475,6 @@ extern "C"
         Mat gray(height, width, CV_8UC3, Scalar(0,0,0));
 
         Mat img_out(height, width, CV_8UC4, frame4b_ptr_out);
-
-
-        Mat testeArray(1, 2, CV_32F, arrayFloat);
 
 
 

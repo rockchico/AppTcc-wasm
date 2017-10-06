@@ -1,4 +1,4 @@
-project (ColorCycle)
+project (AppTccWasm)
 cmake_minimum_required(VERSION 3.0)
 
 set(OpenCV_STATIC ON)

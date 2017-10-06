@@ -14,6 +14,12 @@
 # EXTERNAL cache entries
 ########################
 
+//Value Computed by CMake
+AppTccWasm_BINARY_DIR:STATIC=/var/www/html/AppTcc-wasm
+
+//Value Computed by CMake
+AppTccWasm_SOURCE_DIR:STATIC=/var/www/html/AppTcc-wasm
+
 //Emscripten ar
 CMAKE_AR:FILEPATH=/opt/emsdk-portable/emscripten/1.37.14/emar
 
@@ -106,7 +112,7 @@ CMAKE_OBJCOPY:FILEPATH=/usr/bin/objcopy
 CMAKE_OBJDUMP:FILEPATH=/usr/bin/objdump
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=ColorCycle
+CMAKE_PROJECT_NAME:STATIC=AppTccWasm
 
 //Emscripten ranlib
 CMAKE_RANLIB:FILEPATH=/opt/emsdk-portable/emscripten/1.37.14/emranlib

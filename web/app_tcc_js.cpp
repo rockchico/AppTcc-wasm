@@ -291,7 +291,7 @@ extern "C"
         int fast_threshold = 20;
         bool nonmaxSuppression = true;
 
-        if(frameIndex % 10 == 0) {
+        if(frameIndex % 5 == 0) {
             firstImage = Image;
             
             cv::FAST(firstImage,FASTKeypoints1,fast_threshold,nonmaxSuppression);
@@ -428,7 +428,7 @@ extern "C"
                     cv::line( Image, img2_corners[2] , img2_corners[3] , cv::Scalar( 255, 255, 255), 4 );
                     cv::line( Image, img2_corners[3] , img2_corners[0] , cv::Scalar( 255, 255, 255), 4 );
                 
-                    std::cout<<H<<std::endl;
+                    //std::cout<<H<<std::endl;
 
                     
 
@@ -523,19 +523,17 @@ extern "C"
 
         // 0123
         // RGBA
-
-        //const Mat in_mats[] = {frame_white, img_out };
-        //const Mat in_mats[] = {frame_base, img_out };
-        const Mat in_mats[] = {gray, img_out };
-        constexpr int from_to[] = { 0,0, 1,1, 2,2 };
-        mixChannels(in_mats, std::size(in_mats), &img_out, 1, from_to, std::size(from_to)/2);
+        // const Mat in_mats[] = {gray, img_out };
+        // constexpr int from_to[] = { 0,0, 1,1, 2,2 };
+        // mixChannels(in_mats, std::size(in_mats), &img_out, 1, from_to, std::size(from_to)/2);
 
 
         // PROFUNDIDADE
-        double profundidade = homography.at<double>(1, 1);
+        double profundidade = homography.at<double>(1, 1) * homography.at<double>(0, 0);
         
         // LATERAL
         double lateral = homography.at<double>(0, 2);
+
 
         double values[bufSize];
         

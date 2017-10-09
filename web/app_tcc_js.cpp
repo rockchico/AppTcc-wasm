@@ -284,7 +284,7 @@ extern "C"
 //     }
 
 
-    void computeHomography(cv::Mat& Image, int frameIndex, bool drawMatches) {
+    cv::Mat computeHomography(cv::Mat& Image, int frameIndex, bool drawMatches) {
         // Checking with Robust Matcher
         VO::RobustMatcher robustMatcher;
 
@@ -428,13 +428,9 @@ extern "C"
                     cv::line( Image, img2_corners[2] , img2_corners[3] , cv::Scalar( 255, 255, 255), 4 );
                     cv::line( Image, img2_corners[3] , img2_corners[0] , cv::Scalar( 255, 255, 255), 4 );
                 
-                    //std::cout<<H<<std::endl;
+                    std::cout<<H<<std::endl;
 
-                    // PROFUNDIDADE
-                    double profundidade = H.at<double>(1, 1);
-
-                    // LATERAL
-                    double lateral = H.at<double>(0, 2);
+                    
 
                     //std::cout<< "PROFUNDIDADE = "<< profundidade <<std::endl;
                     //std::cout<< "LATERAL = "<< lateral <<std::endl;
@@ -452,7 +448,8 @@ extern "C"
         if(!H.empty()){
             //std::cout<<"Homography Computed"<<std::endl;
         }
-        //return H;
+
+        return H;
     
     }
 
@@ -462,12 +459,12 @@ extern "C"
     
 
    //////////////////////////////////////////////////////////////////////////
-   bool EMSCRIPTEN_KEEPALIVE teste_match(  int width, 
+   double* EMSCRIPTEN_KEEPALIVE teste_match(  int width, 
                                             int height,
                                             cv::Vec4b* frame4b_ptr,
                                             cv::Vec4b* frame4b_ptr_out,
                                             int frameIndex,
-                                            cv::Vec2f* arrayFloat
+                                            double *buf, int bufSize
                                         ) try { 
 
         
@@ -476,10 +473,6 @@ extern "C"
         Mat gray(height, width, CV_8UC3, Scalar(0,0,0));
 
         Mat img_out(height, width, CV_8UC4, frame4b_ptr_out);
-
-
-        Mat testeArray(1, 2, CV_32F, arrayFloat);
-
 
 
         //mat_white.copyTo(frame_white);
@@ -506,11 +499,11 @@ extern "C"
         //vector<uchar> status;
         //featureTracking(frame_base, gray, points_0, points_1, status); //track those features to img_2
 
-        //cv::Mat homography;
+        cv::Mat homography;
         bool drawMatches = true;
         //homography = computeHomographyFromKeypoints(frame_base, gray, points_0, points_1, drawMatches);
 
-        computeHomography(gray, frameIndex, drawMatches);
+        homography = computeHomography(gray, frameIndex, drawMatches);
 
         //http://docs.opencv.org/3.3.0/d6/d6d/tutorial_mat_the_basic_image_container.html
         //cout << "M = " << endl << " " << homography << endl << endl;
@@ -537,16 +530,34 @@ extern "C"
         constexpr int from_to[] = { 0,0, 1,1, 2,2 };
         mixChannels(in_mats, std::size(in_mats), &img_out, 1, from_to, std::size(from_to)/2);
 
-        return true;
+
+        // PROFUNDIDADE
+        double profundidade = homography.at<double>(1, 1);
+        
+        // LATERAL
+        double lateral = homography.at<double>(0, 2);
+
+        double values[bufSize];
+        
+        // for (int i=0; i<bufSize; i++) {
+        //     values[i] = buf[i] * 1;
+        // }
+
+
+        values[0] = profundidade;
+        values[1] = lateral;
+    
+        auto arrayPtr = &values[0];
+        return arrayPtr;
 
 
 
     } catch (std::exception const& e) {
         printf("Exception thrown teste_match: %s\n", e.what());
-        return false;
+        return 0;
     } catch (...) {
         printf("Unknown exception thrown teste_match!\n");
-        return false;
+        return 0;
     }
 
     
@@ -603,8 +614,6 @@ extern "C"
 
     int EMSCRIPTEN_KEEPALIVE teste_return(int width) try { 
 
-        
-
         return width + 2;
 
 
@@ -616,6 +625,29 @@ extern "C"
         printf("Unknown exception thrown teste_return!\n");
         return false;
     }
+
+    
+    float EMSCRIPTEN_KEEPALIVE addNums (float *buffer, int bufSize) {
+        float total = 0;
+    
+        for (int i=0; i<bufSize; i++) {
+            total+= buffer[i];
+        }
+    
+        return total;
+    }
+
+    float* EMSCRIPTEN_KEEPALIVE doubleValues (float *buf, int bufSize) {
+        
+            float values[bufSize];
+        
+            for (int i=0; i<bufSize; i++) {
+                values[i] = buf[i] * 2.4;
+            }
+        
+            auto arrayPtr = &values[0];
+            return arrayPtr;
+        }
 
 
     bool EMSCRIPTEN_KEEPALIVE teste_soma(int a, int b) try { 

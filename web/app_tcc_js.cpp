@@ -456,7 +456,8 @@ extern "C"
     
 
 
-    
+    // implementar o roi
+    // http://funvision.blogspot.com.br/2015/12/basic-opencv-3-mat-tutorial-part-2-roi.html
 
    //////////////////////////////////////////////////////////////////////////
    double* EMSCRIPTEN_KEEPALIVE teste_match(  int width, 

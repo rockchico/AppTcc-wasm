@@ -7,13 +7,23 @@
 
 // }
 
-VO::featureOperations::featureOperations(cv::Mat firstImage, cv::Mat secondImage, cv::Mat cameraMatrix, bool drawMatches,bool enableHomography, int frameIndex){ // Loading images from a directory
+VO::featureOperations::featureOperations(cv::Mat frame, cv::Mat cameraMatrix, bool drawMatches,bool enableHomography, int frameIndex){ // Loading images from a directory
 
     // Initializing
     this->m_drawMatches=drawMatches;
     this->m_intrinsicMatrix=cameraMatrix;
 
-    if ( !firstImage.data || !secondImage.data ) {
+    if(frameIndex % 2 == 0) {
+        this->firstImage = frame;
+    } else {
+        this->secondImage = frame;
+
+        
+
+
+    }
+
+    if ( !this->firstImage.data || !this->secondImage.data ) {
     std::cout<< " --(!) Error reading images " << std::endl;
     }
 
@@ -21,7 +31,7 @@ VO::featureOperations::featureOperations(cv::Mat firstImage, cv::Mat secondImage
     std::vector<uchar> status;
     std::vector<cv::Point2f> points1,points2;
 
-    points1 = this->detectFeatures(firstImage);
+    points1 = this->detectFeatures(this->firstImage);
 
     // Change these accordingly. Intrinsics
 
@@ -33,9 +43,9 @@ VO::featureOperations::featureOperations(cv::Mat firstImage, cv::Mat secondImage
     cv::Mat homography;
 
 
-    if(this->trackFeatures(firstImage,secondImage,points1,points2,status)){
+    if(this->trackFeatures(this->firstImage,this->secondImage,points1,points2,status)){
         if(enableHomography){
-            homography=this->computeHomographyFromKeypoints(firstImage,secondImage,points1,points2);
+            homography=this->computeHomographyFromKeypoints(this->firstImage,this->secondImage,points1,points2);
 //            homography=this->computeHomography(firstImage,secondImage);
         }
         E = cv::findEssentialMat(points2, points1, focal, pp, cv::RANSAC, 0.999, 1.0, mask);

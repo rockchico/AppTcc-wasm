@@ -33,7 +33,7 @@ namespace VO{
             //featureOperations(cv::Mat cameraMatrix,bool drawMatches,bool enableHomography);
 
             //! Constructor for Francisco
-            featureOperations(cv::Mat firstImage, cv::Mat secondImage, cv::Mat cameraMatrix, bool drawMatches,bool enableHomography, int frameIndex);
+            featureOperations(cv::Mat frame, cv::Mat cameraMatrix, bool drawMatches,bool enableHomography, int frameIndex);
 
             //! Function for extracting features from an image
             std::vector<cv::Point2f> detectFeatures(cv::Mat img);
@@ -57,6 +57,10 @@ namespace VO{
 
             //! Boolean Flag whether to display matches or not
             bool m_drawMatches;
+
+            cv::Mat firstImage;
+
+            cv::Mat secondImage;
 
     };
 

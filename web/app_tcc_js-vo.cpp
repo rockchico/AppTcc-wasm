@@ -102,16 +102,10 @@ extern "C"
 
         cameraMatrix = cv::Mat(3,3,CV_32FC1,&cameraIntrinsicMatrix);
 
-
-        if(frameIndex % 2 == 0) {
-            firstImage = frame;
-        } else {
-            secondImage = frame;
-
-            VO::featureOperations voModule(firstImage, secondImage, cameraMatrix,drawMatches,enableHomography, frameIndex);
+        VO::featureOperations voModule(frame, cameraMatrix,drawMatches,enableHomography, frameIndex);
 
 
-        }
+        
         
 
   

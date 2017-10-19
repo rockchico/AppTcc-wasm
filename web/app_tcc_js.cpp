@@ -284,18 +284,21 @@ extern "C"
 //     }
 
 
-    cv::Mat computeHomography(cv::Mat& Image, int frameIndex, bool drawMatches) {
+    cv::Mat computeHomography(cv::Mat& Image, int frameIndex) {
         // Checking with Robust Matcher
         VO::RobustMatcher robustMatcher;
 
         int fast_threshold = 20;
+        int points_retain = 175;
+
+
         bool nonmaxSuppression = true;
 
         if(frameIndex % 10 == 0) {
             firstImage = Image;
             
             cv::FAST(firstImage,FASTKeypoints1,fast_threshold,nonmaxSuppression);
-            cv::KeyPointsFilter::retainBest(FASTKeypoints1, 150);
+            cv::KeyPointsFilter::retainBest(FASTKeypoints1, points_retain);
 
             KeyPoint::convert(FASTKeypoints1, points1, vector<int>());
 
@@ -319,7 +322,7 @@ extern "C"
         
         // filtra os melhores 150 pontos
         // http://answers.opencv.org/question/12316/set-a-threshold-on-fast-feature-detection/
-        cv::KeyPointsFilter::retainBest(FASTKeypoints2, 150);
+        cv::KeyPointsFilter::retainBest(FASTKeypoints2, points_retain);
 
         //std::cout<<"Passou aqui 2"<<std::endl;
 
@@ -400,48 +403,41 @@ extern "C"
         cv::Mat H = cv::findHomography(img1Keypoints,img2Keypoints,CV_RANSAC);
 
 
+        //cv::drawMatches( firstImage, FASTKeypoints1, secondImage, FASTKeypoints2,good_matches, img_matches,
+        //                    cv::Scalar::all(-1), cv::Scalar::all(-1),std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
 
-        if(drawMatches){
+        //-- Get the corners from the image_1 ( the object to be "detected" )
+        std::vector<cv::Point2f> img1_corners(4);
+        img1_corners[0] = cv::Point(0,0); 
+        img1_corners[1] = cv::Point( firstImage.cols, 0 );
+        img1_corners[2] = cv::Point( firstImage.cols, firstImage.rows ); 
+        img1_corners[3] = cv::Point( 0, firstImage.rows );
 
-            //cv::drawMatches( firstImage, FASTKeypoints1, secondImage, FASTKeypoints2,good_matches, img_matches,
-            //                    cv::Scalar::all(-1), cv::Scalar::all(-1),std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
+        std::vector<cv::Point2f> img2_corners(4);
 
-            //-- Get the corners from the image_1 ( the object to be "detected" )
-                std::vector<cv::Point2f> img1_corners(4);
-                img1_corners[0] = cv::Point(0,0); 
-                img1_corners[1] = cv::Point( firstImage.cols, 0 );
-                img1_corners[2] = cv::Point( firstImage.cols, firstImage.rows ); 
-                img1_corners[3] = cv::Point( 0, firstImage.rows );
+        if(!H.empty()){
+            cv::perspectiveTransform( img1_corners, img2_corners, H);
 
-                std::vector<cv::Point2f> img2_corners(4);
+            //-- Draw lines between the corners (the mapped object in the scene - image_2 )
+            // cv::line( img_matches, img2_corners[0] + cv::Point2f( firstImage.cols, 0), img2_corners[1] + cv::Point2f( firstImage.cols, 0), cv::Scalar(0, 255, 0), 4 );
+            // cv::line( img_matches, img2_corners[1] + cv::Point2f( firstImage.cols, 0), img2_corners[2] + cv::Point2f( firstImage.cols, 0), cv::Scalar( 0, 255, 0), 4 );
+            // cv::line( img_matches, img2_corners[2] + cv::Point2f( firstImage.cols, 0), img2_corners[3] + cv::Point2f( firstImage.cols, 0), cv::Scalar( 0, 255, 0), 4 );
+            // cv::line( img_matches, img2_corners[3] + cv::Point2f( firstImage.cols, 0), img2_corners[0] + cv::Point2f( firstImage.cols, 0), cv::Scalar( 0, 255, 0), 4 );
+            cv::line( Image, img2_corners[0] , img2_corners[1] , cv::Scalar( 255, 255, 255), 4 );
+            cv::line( Image, img2_corners[1] , img2_corners[2] , cv::Scalar( 255, 255, 255), 4 );
+            cv::line( Image, img2_corners[2] , img2_corners[3] , cv::Scalar( 255, 255, 255), 4 );
+            cv::line( Image, img2_corners[3] , img2_corners[0] , cv::Scalar( 255, 255, 255), 4 );
+        
+            //std::cout<<H<<std::endl;
 
-                if(!H.empty()){
-                    cv::perspectiveTransform( img1_corners, img2_corners, H);
+            
 
-                    //-- Draw lines between the corners (the mapped object in the scene - image_2 )
-                    // cv::line( img_matches, img2_corners[0] + cv::Point2f( firstImage.cols, 0), img2_corners[1] + cv::Point2f( firstImage.cols, 0), cv::Scalar(0, 255, 0), 4 );
-                    // cv::line( img_matches, img2_corners[1] + cv::Point2f( firstImage.cols, 0), img2_corners[2] + cv::Point2f( firstImage.cols, 0), cv::Scalar( 0, 255, 0), 4 );
-                    // cv::line( img_matches, img2_corners[2] + cv::Point2f( firstImage.cols, 0), img2_corners[3] + cv::Point2f( firstImage.cols, 0), cv::Scalar( 0, 255, 0), 4 );
-                    // cv::line( img_matches, img2_corners[3] + cv::Point2f( firstImage.cols, 0), img2_corners[0] + cv::Point2f( firstImage.cols, 0), cv::Scalar( 0, 255, 0), 4 );
-                    cv::line( Image, img2_corners[0] , img2_corners[1] , cv::Scalar( 255, 255, 255), 4 );
-                    cv::line( Image, img2_corners[1] , img2_corners[2] , cv::Scalar( 255, 255, 255), 4 );
-                    cv::line( Image, img2_corners[2] , img2_corners[3] , cv::Scalar( 255, 255, 255), 4 );
-                    cv::line( Image, img2_corners[3] , img2_corners[0] , cv::Scalar( 255, 255, 255), 4 );
-                
-                    //std::cout<<H<<std::endl;
+            //std::cout<< "PROFUNDIDADE = "<< profundidade <<std::endl;
+            //std::cout<< "LATERAL = "<< lateral <<std::endl;
 
-                    
-
-                    //std::cout<< "PROFUNDIDADE = "<< profundidade <<std::endl;
-                    //std::cout<< "LATERAL = "<< lateral <<std::endl;
-
-                
-                } else{
-                    std::cout<<"No Homography"<<std::endl;
-                }
-
-
-                
+        
+        } else{
+            std::cout<<"No Homography"<<std::endl;
         }
 
 
@@ -469,16 +465,33 @@ extern "C"
                                         ) try { 
 
         
+        
+        
+        
         Mat frame(height, width, CV_8UC4, frame4b_ptr);
 
         Mat gray(height, width, CV_8UC3, Scalar(0,0,0));
 
         Mat img_out(height, width, CV_8UC4, frame4b_ptr_out);
 
+        // int roi_width = 320;
+        // int roi_height = 240;
+
+        // int roi_x = 0;
+        // int roi_y = 0;
+
+
+
+
+
+        // Rect RectangleToSelect(x,y, roi_width, roi_height);
+        // Mat source;
+        // Mat roiImage = source(RectangleToSelect);
+
 
         //mat_white.copyTo(frame_white);
 
-        cv::Mat frame_white(height, width, CV_8UC3, Scalar(255,255,255));
+        //cv::Mat frame_white(height, width, CV_8UC3, Scalar(255,255,255));
 
 
 
@@ -489,7 +502,7 @@ extern "C"
         bool drawMatches = true;
         //homography = computeHomographyFromKeypoints(frame_base, gray, points_0, points_1, drawMatches);
 
-        homography = computeHomography(gray, frameIndex, drawMatches);
+        homography = computeHomography(gray, frameIndex);
 
         //http://docs.opencv.org/3.3.0/d6/d6d/tutorial_mat_the_basic_image_container.html
         //cout << "M = " << endl << " " << homography << endl << endl;
@@ -504,7 +517,7 @@ extern "C"
 
 
         // PROFUNDIDADE
-        double profundidade = homography.at<double>(1, 1) * homography.at<double>(0, 0);
+        double profundidade = homography.at<double>(1, 1);
         
         // LATERAL
         double lateral = homography.at<double>(0, 2);

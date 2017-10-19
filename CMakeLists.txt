@@ -5,10 +5,16 @@ set(OpenCV_STATIC ON)
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS} .)
 
-add_library(app_tcc_lib VO.cpp VO.h)
+# francisco
+#add_library(app_tcc_lib VO.cpp VO.h)
+add_library(app_tcc_lib VisualOdometry/src/VO.cpp VisualOdometry/include/VO.h)
 
 if (EMSCRIPTEN)
-	add_executable (app_tcc_wasm web/app_tcc_js.cpp)
+	
+    # francisco
+    #add_executable (app_tcc_wasm web/app_tcc_js.cpp)
+    add_executable (app_tcc_wasm web/app_tcc_js-vo.cpp)
+
     target_link_libraries(app_tcc_wasm ${OpenCV_LIBS} app_tcc_lib)
 
     add_custom_command(TARGET app_tcc_wasm POST_BUILD              # Adds a post-build event to app_tcc_wasm

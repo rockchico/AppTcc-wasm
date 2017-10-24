@@ -13,28 +13,11 @@ VO::featureOperations::featureOperations(cv::Mat frame, cv::Mat cameraMatrix, bo
     this->m_drawMatches=drawMatches;
     this->m_intrinsicMatrix=cameraMatrix;
 
-    if(frameIndex % 2 == 0) {
-        this->firstImage = frame;
-    } else {
-        this->secondImage = frame;
-
-        
-
-
-    }
-
-    if ( !this->firstImage.data || !this->secondImage.data ) {
-    std::cout<< " --(!) Error reading images " << std::endl;
-    }
-
-
     std::vector<uchar> status;
     std::vector<cv::Point2f> points1,points2;
 
-    points1 = this->detectFeatures(this->firstImage);
-
     // Change these accordingly. Intrinsics
-
+    
     double focal = 718.8560;
     cv::Point2d pp(607.1928, 185.2157);
 
@@ -43,89 +26,104 @@ VO::featureOperations::featureOperations(cv::Mat frame, cv::Mat cameraMatrix, bo
     cv::Mat homography;
 
 
-    if(this->trackFeatures(this->firstImage,this->secondImage,points1,points2,status)){
-        if(enableHomography){
-            homography=this->computeHomographyFromKeypoints(this->firstImage,this->secondImage,points1,points2);
-//            homography=this->computeHomography(firstImage,secondImage);
+
+    if(frameIndex < 2) {
+
+        if(frameIndex % 2 == 0) {
+            this->firstImage = frame;
+        } else {
+            this->secondImage = frame;
         }
-        E = cv::findEssentialMat(points2, points1, focal, pp, cv::RANSAC, 0.999, 1.0, mask);
-        cv::recoverPose(E, points2, points1, R, t, focal, pp, mask);
+    
+        if ( !this->firstImage.data || !this->secondImage.data ) {
+            std::cout<< " --(!) Error reading images " << std::endl;
+        }
+    
+        points1 = this->detectFeatures(this->firstImage);
+
+        if(this->trackFeatures(this->firstImage,this->secondImage,points1,points2,status)){
+            if(enableHomography){
+                homography=this->computeHomographyFromKeypoints(this->firstImage,this->secondImage,points1,points2);
+    //            homography=this->computeHomography(firstImage,secondImage);
+            }
+            E = cv::findEssentialMat(points2, points1, focal, pp, cv::RANSAC, 0.999, 1.0, mask);
+            cv::recoverPose(E, points2, points1, R, t, focal, pp, mask);
+
+        }
+
+
+    } else {
+
+        cv::Mat prevImage = frame;
+
+        if(frameIndex == 1) {
+            cv::Mat prevImage = this->secondImage;
+        } 
+    
+        cv::Mat currImage;
+        std::vector<cv::Point2f> prevFeatures = points2;
+        std::vector<cv::Point2f> currFeatures;
+    
+    
+        cv::Mat R_f,t_f; // Final Rotation and Translation Vectors
+    
+        R_f = R.clone();
+        t_f = t.clone();
+    
+    
+    
+        // For FAST
+        if(this->trackFeatures(prevImage,currImage,prevFeatures,currFeatures,status)){
+            E = cv::findEssentialMat(currFeatures, prevFeatures, focal, pp, cv::RANSAC, 0.999, 1.0, mask);
+            cv::recoverPose(E, currFeatures, prevFeatures, R, t, focal, pp, mask);
+        }
+
+        // For Homography
+        if(enableHomography){
+            if(!(prevFeatures.empty()||currFeatures.empty())){
+                homography=this->computeHomographyFromKeypoints(prevImage,currImage,prevFeatures,currFeatures);
+//                homography=this->computeHomography(prevImage,currImage);
+            }
+        }
+
+        double scale = 1;
+    
+    //         //cout << "Scale is " << scale << endl;
+    
+        if ((scale>0.1)&&(t.at<double>(2) > t.at<double>(0)) && (t.at<double>(2) > t.at<double>(1))) {
+
+            t_f = t_f + scale*(R_f*t);
+            R_f = R*R_f;
+
+        }
+    
+    //         // a redetection is triggered in case the number of feautres being trakced go below a particular threshold
+        if (prevFeatures.size() < 1800)	{
+            prevFeatures=this->detectFeatures(prevImage);
+            this->trackFeatures(prevImage,currImage,prevFeatures,currFeatures, status);
+
+        }
+    
+    //         prevImage = currImage.clone();
+    //         prevFeatures = currFeatures;
+    
+    //         cv::imshow("Camera", currImage);
+    //         cv::waitKey(30);
+    //         if (prevFeatures.size() > 200){
+    //             if(this->plotTrajectory(trajectory,t_f,"Trajectory")){
+    //                 std::cout<<"Trajectory Plotted"<<std::endl;
+    //             }
+    //         }
+    //     } while ( comparator((*it++).first, last) );
+    
+    //     cv::imwrite("Trajectory.png",trajectory);
+
+
+
+
     }
 
-
-//     cv::Mat prevImage = secondImage;
-//     cv::Mat currImage;
-//     std::vector<cv::Point2f> prevFeatures = points2;
-//     std::vector<cv::Point2f> currFeatures;
-
-//     cv::Mat R_f,t_f; // Final Rotation and Translation Vectors
-
-//     R_f = R.clone();
-//     t_f = t.clone();
-
-//     cv::namedWindow("Camera",CV_WINDOW_AUTOSIZE);
-//     cv::Mat trajectory = cv::Mat::zeros(600,600,CV_8UC3);
-
-//     // The image stream from the 2nd image onwards
-//     int fileIndex = 0;
-//     std::string remainingImgs;
-//     do {
-//         ++fileIndex;
-//         for(int i=0;i<10;i++){//Skipping 10 frames
-//             *it++;
-//         }
-//         std::cout<<"\nFrame # : "<<fileIndex<<std::endl;
-//         remainingImgs= ((*it).second).string();
-//         currImage = cv::imread(remainingImgs,CV_LOAD_IMAGE_ANYCOLOR);
-//         cv::resize(currImage,currImage,cv::Size(640,320));
-
-
-//         // For FAST
-//         if(this->trackFeatures(prevImage,currImage,prevFeatures,currFeatures,status)){
-//             E = cv::findEssentialMat(currFeatures, prevFeatures, focal, pp, cv::RANSAC, 0.999, 1.0, mask);
-//             cv::recoverPose(E, currFeatures, prevFeatures, R, t, focal, pp, mask);
-//         }
-
-//         // For Homography
-//         if(enableHomography){
-//             if(!(prevFeatures.empty()||currFeatures.empty())){
-//             homography=this->computeHomographyFromKeypoints(prevImage,currImage,prevFeatures,currFeatures);
-// //                homography=this->computeHomography(prevImage,currImage);
-//             }
-//         }
-
-// //            scale = getAbsoluteScale(numFrame, 0, t.at<double>(2));
-//         double scale = 1;
-
-//         //cout << "Scale is " << scale << endl;
-
-//         if ((scale>0.1)&&(t.at<double>(2) > t.at<double>(0)) && (t.at<double>(2) > t.at<double>(1))) {
-
-//             t_f = t_f + scale*(R_f*t);
-//             R_f = R*R_f;
-
-//         }
-
-//         // a redetection is triggered in case the number of feautres being trakced go below a particular threshold
-//         if (prevFeatures.size() < 1800)	{
-//             prevFeatures=this->detectFeatures(prevImage);
-//             this->trackFeatures(prevImage,currImage,prevFeatures,currFeatures, status);
-
-//         }
-
-//         prevImage = currImage.clone();
-//         prevFeatures = currFeatures;
-
-//         cv::imshow("Camera", currImage);
-//         cv::waitKey(30);
-//         if (prevFeatures.size() > 200){
-//             if(this->plotTrajectory(trajectory,t_f,"Trajectory")){
-//                 std::cout<<"Trajectory Plotted"<<std::endl;
-//             }
-//         }
-//     } while ( comparator((*it++).first, last) );
-
-//     cv::imwrite("Trajectory.png",trajectory);
+    
 
 
 

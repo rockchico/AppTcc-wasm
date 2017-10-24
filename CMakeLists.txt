@@ -6,16 +6,17 @@ find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS} .)
 
 # francisco
-#add_library(app_tcc_lib VO.cpp VO.h)
-add_library(app_tcc_lib VisualOdometry/src/VO.cpp VisualOdometry/include/VO.h)
+add_library(app_tcc_lib VO.cpp VO.h) # !!!
+#add_library(app_tcc_lib VisualOdometry/src/VO.cpp VisualOdometry/include/VO.h)
 
 if (EMSCRIPTEN)
 	
     # francisco
-    #add_executable (app_tcc_wasm web/app_tcc_js.cpp)
-    add_executable (app_tcc_wasm web/app_tcc_js-vo.cpp)
+    add_executable (app_tcc_wasm web/app_tcc_js.cpp) # !!!
+    #add_executable (app_tcc_wasm web/app_tcc_js-vo.cpp)
 
-    target_link_libraries(app_tcc_wasm ${OpenCV_LIBS} app_tcc_lib)
+    target_link_libraries(app_tcc_wasm ${OpenCV_LIBS} app_tcc_lib) # !!!
+    #target_link_libraries(app_tcc_wasm ${OpenCV_LIBS})
 
     add_custom_command(TARGET app_tcc_wasm POST_BUILD              # Adds a post-build event to app_tcc_wasm
                       COMMAND ${CMAKE_COMMAND} -E copy_if_different  # which executes "cmake - E copy_if_different..."

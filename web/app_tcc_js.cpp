@@ -288,7 +288,7 @@ extern "C"
         // Checking with Robust Matcher
         VO::RobustMatcher robustMatcher;
 
-        int fast_threshold = 20;
+        int fast_threshold = 35; // quanto maior, menos features
         int points_retain = 175;
 
 
@@ -298,6 +298,10 @@ extern "C"
             firstImage = Image;
             
             cv::FAST(firstImage,FASTKeypoints1,fast_threshold,nonmaxSuppression);
+
+            //std::cout<<"Num features 1: "<<FASTKeypoints1.size()<<std::endl;
+            
+
             cv::KeyPointsFilter::retainBest(FASTKeypoints1, points_retain);
 
             KeyPoint::convert(FASTKeypoints1, points1, vector<int>());
@@ -317,6 +321,7 @@ extern "C"
         }
 
         cv::FAST(secondImage,FASTKeypoints2,fast_threshold,nonmaxSuppression);
+        //std::cout<<"Num features 2: "<<FASTKeypoints2.size()<<std::endl;
 
         //std::cout<<"Passou aqui 1"<<std::endl;
         
@@ -329,8 +334,8 @@ extern "C"
         
           
         KeyPoint::convert(FASTKeypoints2, points2, vector<int>());
-        //std::cout<<"Num features 1: "<<points1.size()<<std::endl;
-        //std::cout<<"Num features 2: "<<points1.size()<<std::endl;
+
+        
 
         
         robustMatcher.computeDescriptors(secondImage,FASTKeypoints2,orbDescriptors2);

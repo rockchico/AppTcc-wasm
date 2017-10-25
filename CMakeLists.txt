@@ -12,7 +12,7 @@ add_library(app_tcc_lib VO.cpp VO.h) # !!!
 if (EMSCRIPTEN)
 	
     # francisco
-    add_executable (app_tcc_wasm web/app_tcc_js.cpp) # !!!
+    add_executable (app_tcc_wasm web/app_tcc_js-v7.cpp) # !!!
     #add_executable (app_tcc_wasm web/app_tcc_js-vo.cpp)
 
     target_link_libraries(app_tcc_wasm ${OpenCV_LIBS} app_tcc_lib) # !!!

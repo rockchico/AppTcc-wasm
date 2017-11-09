@@ -3,23 +3,12 @@
 
 #include "iostream"
 #include "opencv2/opencv.hpp"
-// #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/video/tracking.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/features2d/features2d.hpp"
 #include "opencv2/calib3d/calib3d.hpp"
 #include <vector>
 #include <string.h>
-// #include <boost/lambda/bind.hpp>
-// #include <boost/algorithm/string/case_conv.hpp>
-// #include <boost/filesystem.hpp>
-// #include <boost/filesystem/operations.hpp>
-// #include <boost/spirit/include/qi.hpp>
-// #include <boost/spirit/include/karma.hpp>
-// #include <boost/thread/thread.hpp>
-// #include <boost/bind.hpp>
-// #include <boost/thread/mutex.hpp>
-// #include <boost/ptr_container/ptr_vector.hpp>
 #include "map"
 #include <fstream>
 
@@ -27,42 +16,6 @@
 
 namespace VO{
 
-    class featureOperations{
-        public:
-            //! Constructor for capturing from the camera
-            //featureOperations(cv::Mat cameraMatrix,bool drawMatches,bool enableHomography);
-
-            //! Constructor for Francisco
-            featureOperations(cv::Mat frame, cv::Mat cameraMatrix, bool drawMatches,bool enableHomography, int frameIndex);
-
-            //! Function for extracting features from an image
-            std::vector<cv::Point2f> detectFeatures(cv::Mat img);
-
-            //! Function to track features in consecutive images
-            bool trackFeatures(cv::Mat prevImg,cv::Mat currentImg,std::vector<cv::Point2f>& points1, std::vector<cv::Point2f>& points2, std::vector<uchar>& status);
-
-            //! Plot Trajectory
-            bool plotTrajectory(cv::Mat trajectory, cv::Mat translation, std::string windowName);
-
-            //! For homography
-            cv::Mat computeHomography(cv::Mat firstImage, cv::Mat secondImage);
-
-            //! For homography from keypoints
-            cv::Mat computeHomographyFromKeypoints(cv::Mat firstImage, cv::Mat secondImage, std::vector<cv::Point2f> FASTpoints1, std::vector<cv::Point2f> FASTpoints2);
-
-        private:
-
-            //! Camera Intrinsic Matrix
-            cv::Mat m_intrinsicMatrix;
-
-            //! Boolean Flag whether to display matches or not
-            bool m_drawMatches;
-
-            cv::Mat firstImage;
-
-            cv::Mat secondImage;
-
-    };
 
     class RobustMatcher {
     public:
@@ -124,6 +77,6 @@ namespace VO{
     };
 
 }
-cv::Mat readCameraIntrinsic(std::string pathToIntrinsic);
+cv::Mat readCameraIntrinsic();
 
 #endif

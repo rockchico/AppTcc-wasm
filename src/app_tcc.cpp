@@ -47,16 +47,11 @@ extern "C"
     cv::Mat computeHomography(cv::Mat& Image, int frameIndex) {
 
         VO::RobustMatcher robustMatcher;
-
         // limiar de intensidade do pixel , para ser considerado um canto (ponto característico)
         int fast_threshold = 20; 
-
         // selecionar os melhores x pontos
         int points_retain = 150; // 
-
-
         bool nonmaxSuppression = true;
-
 
         // seleciona um frame base a cada 15
         if(frameIndex % 15 == 0) {
@@ -148,13 +143,11 @@ extern "C"
         //-- Draw only "good" matches
         cv::Mat img_matches;
 
-
-        //-- Localize the object
         std::vector<cv::Point2f> img1Keypoints;
         std::vector<cv::Point2f> img2Keypoints;
 
         for( int i = 0; i < good_matches.size(); i++ ) {
-            //-- Get the keypoints from the good matches
+            // extrai os pontos a partir das melhores associações
             img1Keypoints.push_back( FASTKeypoints1[ good_matches[i].queryIdx ].pt );
             img2Keypoints.push_back( FASTKeypoints2[ good_matches[i].trainIdx ].pt );
         }
@@ -178,23 +171,20 @@ extern "C"
                                                 int height,
                                                 cv::Vec4b* frame4b_ptr,
                                                 int frameIndex,
-                                                double *buf, int bufSize
+                                                int matrix_size
                                         ) try { 
-
+        // cria uma matriz representado o frame, basada no ponteiro enviado
         Mat frame(height, width, CV_8UC4, frame4b_ptr);
-
+        // matriz que recebe a imagem convertida para escala de cinza
         Mat gray(height, width, CV_8UC3, Scalar(0,0,0));
-
-
+        // converte a imagem em escala de cinza
         cv::cvtColor(frame, gray, CV_RGBA2GRAY); 
-
-
+        // chama a função responsável por computr a homografia
         cv::Mat homography;
         homography = computeHomography(gray, frameIndex);
 
-        double values[bufSize];
-        
-
+        // cria um vetor que reacebe os valores da matriz de homografia
+        double values[matrix_size];
         values[0] = homography.at<double>(0, 0);
         values[1] = homography.at<double>(0, 1);
         values[2] = homography.at<double>(0, 2);
@@ -205,18 +195,33 @@ extern "C"
         values[7] = homography.at<double>(2, 1);
         values[8] = homography.at<double>(2, 2);
 
-    
+        // retorna o ponteiro para o vetor contendo os valores da homografia
         auto arrayPtr = &values[0];
         return arrayPtr;
 
+    } catch (std::exception const& e) {
+        printf("Exception thrown vo_homography: %s\n", e.what());
+        return 0;
+    } catch (...) {
+        printf("Unknown exception thrown vo_homography!\n");
+        return 0;
+    }
+
+
+    int EMSCRIPTEN_KEEPALIVE teste_soma(int a, int b) try { 
+
+
+        return a + b;
 
 
     } catch (std::exception const& e) {
-        printf("Exception thrown teste_match: %s\n", e.what());
-        return 0;
+        printf("Exception thrown teste_soma: %s\n", e.what());
+        return false;
     } catch (...) {
-        printf("Unknown exception thrown teste_match!\n");
-        return 0;
+        printf("Unknown exception thrown teste_soma!\n");
+        return false;
     }
+
+
 
 }
